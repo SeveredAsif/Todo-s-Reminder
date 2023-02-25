@@ -79,6 +79,12 @@ int local_minute() {
   //printf("now:%02d:%02d:%02d\n",tm.tm_hour, tm.tm_min, tm.tm_sec);
   return tm.tm_min;
 }
+int local_second() {
+  time_t t = time(NULL);
+  struct tm tm = * localtime( & t);
+  //printf("now:%02d:%02d:%02d\n",tm.tm_hour, tm.tm_min, tm.tm_sec);
+  return tm.tm_sec;
+}
 
 struct deadline {
   int hour;
@@ -181,15 +187,8 @@ void show_file(void) {
   while (fgets(line, sizeof(line), file)) {
     char * token = strtok(line, ",");
     while (token != NULL) {
-      obostha[counter].coordinate = y;
-      if (obostha[counter].obosthas == 1) {
+      //obostha[counter].coordinate = y;
         iRectangle(479, y - 3, 15, 15);
-      }
-      if (obostha[counter].obosthas == -1) {
-        iSetColor(255, 0, 0);
-        iFilledRectangle(470, y, 15, 15);
-      }
-      //printf("%s\n", token);
       iText(500, y, token);
       y -= 30;
       token = strtok(NULL, ",");
@@ -253,12 +252,12 @@ show_remaining_time() {
         else if(minute_remain(dedline[i].minute)<0)
         {
             char buffer[100];
-            int hour = (hour_remain(dedline[i].hour)*60+minute_remain(dedline[i].minute))/60;
-            sprintf(buffer,"%d",hour);
+            int minute = (hour_remain(dedline[i].hour)*60+minute_remain(dedline[i].minute));
+            sprintf(buffer,"%d",minute/60);
             iText(680, y, buffer);
             iText(700, y, "hr");
             char bufferr[100];
-            sprintf(bufferr,"%d",-1*minute_remain(dedline[i].minute));
+            sprintf(bufferr,"%d",minute-60*(minute/60));
             iText(720,y,bufferr);
             iText(750,y,"min");
             y -= 30;
@@ -309,6 +308,22 @@ void iDraw() {
   iRectangle(678, 532, 111, 68);
   iSetColor(0, 0, 255);
   iFilledCircle(1130, 50, 40);
+  iSetColor(0,0,0);
+  iFilledRectangle(130,561-60,216,60);
+  //154,522
+  iSetColor(255,0,0);
+  char tmp[20];
+  int hour = local_hour();
+  int minute = local_minute();
+  int second = local_second();
+  sprintf(tmp,"%d",hour);
+  iText(154+30+10,522,tmp,GLUT_BITMAP_TIMES_ROMAN_24);
+  iText(154+30+10+25,522,":",GLUT_BITMAP_TIMES_ROMAN_24);
+  sprintf(tmp,"%d",minute);
+  iText(154+30+30+10,522,tmp,GLUT_BITMAP_TIMES_ROMAN_24);
+  iText(154+30+30+10+25,522,":",GLUT_BITMAP_TIMES_ROMAN_24);
+  sprintf(tmp,"%d",second);
+  iText(154+30+30+30+10,522,tmp,GLUT_BITMAP_TIMES_ROMAN_24);
   iSetColor(235, 229, 52);
   iFilledRectangle(130,58,216,43);
   iFilledRectangle(130,111,216,43);
@@ -651,6 +666,7 @@ void iMouse(int button, int state, int mx, int my) {
         fclose(fp);
         fp=fopen("task.txt","w");
         fprintf(fp,"1");
+        task =1;
         fclose(fp);
         fp=fopen("tick17.txt","w");
         fclose(fp);
