@@ -187,8 +187,15 @@ void show_file(void) {
   while (fgets(line, sizeof(line), file)) {
     char * token = strtok(line, ",");
     while (token != NULL) {
-      //obostha[counter].coordinate = y;
+      obostha[counter].coordinate = y;
+      if (obostha[counter].obosthas == 1) {
         iRectangle(479, y - 3, 15, 15);
+      }
+      if (obostha[counter].obosthas == -1) {
+        iSetColor(255, 0, 0);
+        iFilledRectangle(470, y, 15, 15);
+      }
+      //printf("%s\n", token);
       iText(500, y, token);
       y -= 30;
       token = strtok(NULL, ",");
