@@ -22,6 +22,14 @@ int local_hour() {
   //printf("now:%02d:%02d:%02d\n", tm.tm_hour, tm.tm_min, tm.tm_sec);
   return tm.tm_hour;
 }
+
+int local_day() {
+  time_t t = time(NULL);
+  struct tm tm = * localtime( & t);
+  //printf("now:%02d:%02d:%02d\n",tm.tm_hour, tm.tm_min, tm.tm_sec);
+  return tm.tm_wday;
+}
+
 int local_minute() {
   time_t t = time(NULL);
   struct tm tm = * localtime( & t);
@@ -38,28 +46,18 @@ int local_second() {
 struct deadline {
   int hour;
   int minute;
+  int day;
 };
 
 struct deadline dedline[1000];
 
 void read_deadline_file(void) {
-  FILE * f = fopen("deadline.txt", "r");
+  FILE * f = fopen("deadline_week.txt", "r");
   deadline_tracker = 0;
   if (f != NULL) {
     char x, y, z, m;
-    while (fscanf(f, "%c%c %c%c,", & z, & x, & y, & m) == 4) {
-      if (z != '0') {
-        dedline[deadline_tracker].hour = (x - '0') + (z - '0') * 10;
-      } else if (z == '0') {
-        dedline[deadline_tracker].hour = x - '0';
-      }
-      if (y != '0') {
-        dedline[deadline_tracker].minute = (m - '0') + (y - '0') * 10;
-
-      } else if (y == '0') {
-        dedline[deadline_tracker].minute = m - '0';
-      }
-
+    while (fscanf(f, "%c,", & z) == 1) {
+      dedline[deadline_tracker].day = z - '0';
       deadline_tracker++;
     }
   }
@@ -67,20 +65,57 @@ void read_deadline_file(void) {
 
 }
 
-void Add_deadline_minutes(void) {
-  FILE * f = fopen("deadline.txt", "a");
-  fprintf(f, "%s,", tmp3);
-  fclose(f);
-  condition = 0;
-}
-
 void Add_deadline(void) {
   condition = 2;
-  FILE * f = fopen("deadline.txt", "a");
-  fprintf(f, "%s ", tmp2);
-  //condition = 0;
-  fclose(f);
-  condition = 3;
+  FILE * f = fopen("deadline_week.txt", "a");
+  FILE * fp = fopen("deadline_string.txt", "a");
+  if (strcmp(tmp2, "Monday") == 0 || strcmp(tmp2, "monday") == 0) {
+    fprintf(f, "1,");
+    fclose(f);
+    fprintf(fp, "%s,", tmp2);
+    fclose(fp);
+    condition = 0;
+  } else if (strcmp(tmp2, "Sunday") == 0 || strcmp(tmp2, "sunday") == 0) {
+    fprintf(f, "0,");
+    fclose(f);
+    fprintf(fp, "%s,", tmp2);
+    fclose(fp);
+    condition = 0;
+  } else if (strcmp(tmp2, "Tuesday") == 0 || strcmp(tmp2, "tuesday") == 0) {
+    fprintf(f, "2,");
+    fclose(f);
+    fprintf(fp, "%s,", tmp2);
+    fclose(fp);
+    condition = 0;
+  } else if (strcmp(tmp2, "Wednesday") == 0 || strcmp(tmp2, "wednesday") == 0) {
+    fprintf(f, "3,");
+    fclose(f);
+    fprintf(fp, "%s,", tmp2);
+    fclose(fp);
+    condition = 0;
+  } else if (strcmp(tmp2, "Thursday") == 0 || strcmp(tmp2, "thursday") == 0) {
+    fprintf(f, "4,");
+    fclose(f);
+    fprintf(fp, "%s,", tmp2);
+    fclose(fp);
+    condition = 0;
+  } else if (strcmp(tmp2, "Friday") == 0 || strcmp(tmp2, "friday") == 0) {
+    fprintf(f, "5,");
+    fclose(f);
+    fprintf(fp, "%s,", tmp2);
+    fclose(fp);
+    condition = 0;
+  } else if (strcmp(tmp2, "Saturday") == 0 || strcmp(tmp2, "saturday") == 0) {
+    fprintf(f, "6,");
+    fclose(f);
+    fprintf(fp, "%s,", tmp2);
+    fclose(fp);
+    condition = 0;
+  } else {
+    fclose(f);
+    fclose(fp);
+  }
+
 }
 
 int time_diff(int current_time, int deadline) {
@@ -88,8 +123,8 @@ int time_diff(int current_time, int deadline) {
   return time_diff;
 }
 
-void read_task_file(void) {
-  FILE * f = fopen("task.txt", "r");
+void read_task_file_week(void) {
+  FILE * f = fopen("task_week.txt", "r");
   if (f != NULL) {
     char ntask[100];
     fgets(ntask, 100, f);
@@ -103,27 +138,24 @@ void read_task_file(void) {
 
 void show_time(void) {
   FILE * file;
-  file = fopen("deadline.txt", "r");
-  char x, y, z, m;
-  int yaxis = 500;
-  while (fscanf(file, "%c%c %c%c,", & z, & x, & y, & m) == 4) {
-    char * bufferr;
-    bufferr = (char * ) calloc(5, sizeof(char));
-    bufferr[0] = z;
-    bufferr[1] = x;
-    bufferr[2] = ' ';
-    bufferr[3] = y;
-    bufferr[4] = m;
-    iText(598, yaxis, bufferr);
-    yaxis -= 30;
-    free(bufferr);
+  file = fopen("deadline_string.txt", "r");
+  char line[100];
+  int y = 500;
+  while (fgets(line, sizeof(line), file)) {
+    char * token = strtok(line, ",");
+    while (token != NULL) {
+      iText(598, y, token);
+      y -= 30;
+      token = strtok(NULL, ",");
+    }
+    fclose(file);
+
   }
-  fclose(file);
 }
 
 void show_file(void) {
   int counter = 0;
-  FILE * file = fopen("to-do list.txt", "r");
+  FILE * file = fopen("to-do list_week.txt", "r");
   if (file == NULL) {
     printf("Error opening file.\n");
     return;
@@ -150,12 +182,12 @@ void Add_task(void) {
   FILE * file;
   char str[20];
   sprintf(str, "%d", task);
-  file = fopen("to-do list.txt", "a");
+  file = fopen("to-do list_week.txt", "a");
   fprintf(file, "%s. %s,", str, tmp);
   task++;
   char str2[20];
   sprintf(str2, "%d", task);
-  FILE * f = fopen("task.txt", "w");
+  FILE * f = fopen("task_week.txt", "w");
   fprintf(f, str2);
   fclose(f);
   fclose(file);
@@ -173,6 +205,10 @@ int hour_remain(int deadline) {
   int a = local_hour();
   return time_diff(a, deadline);
 }
+int day_remain(int deadline) {
+  int a = local_day();
+  return time_diff(a, deadline);
+}
 
 int minute_remain(int deadline) {
   int a = local_minute();
@@ -182,43 +218,17 @@ int minute_remain(int deadline) {
 show_remaining_time() {
   int y = 500;
   for (int i = 0; i < deadline_tracker; i++) {
-    if (hour_remain(dedline[i].hour) > 0) {
-      if (minute_remain(dedline[i].minute) > 0) {
-        char buffer[100];
-        sprintf(buffer, "%d", hour_remain(dedline[i].hour));
-        iText(680, y, buffer);
-        iText(700, y, "hr");
-        char bufferr[100];
-        sprintf(bufferr, "%d", minute_remain(dedline[i].minute));
-        iText(720, y, bufferr);
-        iText(750, y, "min");
-        y -= 30;
-      } else if (minute_remain(dedline[i].minute) < 0) {
-        char buffer[100];
-        int minute = (hour_remain(dedline[i].hour) * 60 + minute_remain(dedline[i].minute));
-        sprintf(buffer, "%d", minute / 60);
-        iText(680, y, buffer);
-        iText(700, y, "hr");
-        char bufferr[100];
-        sprintf(bufferr, "%d", minute - 60 * (minute / 60));
-        iText(720, y, bufferr);
-        iText(750, y, "min");
-        y -= 30;
-      }
-    } else if (hour_remain(dedline[i].hour) <= 0) {
-      if (minute_remain(dedline[i].minute) <= 0) {
-        iText(680, y, "Time Over");
-        y -= 30;
-      } else if (hour_remain(dedline[i].hour) == 0) {
-        iText(680, y, "0");
-        iText(700, y, "hr");
-        char bufferr[100];
-        sprintf(bufferr, "%d", minute_remain(dedline[i].minute));
-        iText(720, y, bufferr);
-        iText(750, y, "min");
-        y -= 30;
+    //printf("%i day\n",day_remain(dedline[i].day));
+    //printf("%i local day\n",local_day());
+    if (day_remain(dedline[i].day) >= 0) {
+      char buffer[100];
+      sprintf(buffer, "%d", day_remain(dedline[i].day) + 1);
+      iText(680, y, buffer);
+      y -= 30;
 
-      }
+    } else {
+      iText(680, y, "Time Over");
+      y -= 30;
 
     }
 
@@ -227,6 +237,7 @@ show_remaining_time() {
 
 void iDraw() {
   iClear();
+  read_task_file_week();
   iSetColor(151, 234, 84);
   iFilledRectangle(0, 0, 1200, 600);
   iSetColor(3, 169, 244);
@@ -267,7 +278,7 @@ void iDraw() {
   iFilledRectangle(130, 164, 216, 43);
   iSetColor(0, 0, 0);
   iText(591, 569, "DEADLINE", GLUT_BITMAP_TIMES_ROMAN_10);
-  iText(691, 569, "TIME REMAINING", GLUT_BITMAP_TIMES_ROMAN_10);
+  iText(691, 569, "DAY REMAINING", GLUT_BITMAP_TIMES_ROMAN_10);
   iText(501, 569, "TASK", GLUT_BITMAP_TIMES_ROMAN_10);
   iSetColor(255, 235, 59);
   iText(838, 429, input, GLUT_BITMAP_TIMES_ROMAN_24);
@@ -278,7 +289,7 @@ void iDraw() {
   iSetColor(255, 0, 0);
   FILE * fp;
   char cmp;
-  fp = fopen("tick1.txt", "r");
+  fp = fopen("tick1_week.txt", "r");
   fscanf(fp, "%c", & cmp);
   if (cmp == '1') {
     iShowBMP2(455, 484, "tick_box.bmp", 0xffffff);
@@ -286,7 +297,7 @@ void iDraw() {
   fclose(fp);
 
   cmp = '0';
-  fp = fopen("tick2.txt", "r");
+  fp = fopen("tick2_week.txt", "r");
   fscanf(fp, "%c", & cmp);
   if (cmp == '1') {
     iShowBMP2(455, 484 - 30, "tick_box.bmp", 0xffffff);
@@ -294,7 +305,7 @@ void iDraw() {
   fclose(fp);
   cmp = '0';
 
-  fp = fopen("tick3.txt", "r");
+  fp = fopen("tick3_week.txt", "r");
   fscanf(fp, "%c", & cmp);
   if (cmp == '1') {
     iShowBMP2(455, 484 - 60, "tick_box.bmp", 0xffffff);
@@ -302,7 +313,7 @@ void iDraw() {
   fclose(fp);
   cmp = '0';
 
-  fp = fopen("tick4.txt", "r");
+  fp = fopen("tick4_week.txt", "r");
   fscanf(fp, "%c", & cmp);
   if (cmp == '1') {
     iShowBMP2(455, 484 - 90, "tick_box.bmp", 0xffffff);
@@ -310,7 +321,7 @@ void iDraw() {
   fclose(fp);
   cmp = '0';
 
-  fp = fopen("tick5.txt", "r");
+  fp = fopen("tick5_week.txt", "r");
   fscanf(fp, "%c", & cmp);
   if (cmp == '1') {
     iShowBMP2(455, 484 - 120, "tick_box.bmp", 0xffffff);
@@ -318,7 +329,7 @@ void iDraw() {
   fclose(fp);
   cmp = '0';
 
-  fp = fopen("tick6.txt", "r");
+  fp = fopen("tick6_week.txt", "r");
   fscanf(fp, "%c", & cmp);
   if (cmp == '1') {
     iShowBMP2(455, 484 - 150, "tick_box.bmp", 0xffffff);
@@ -326,7 +337,7 @@ void iDraw() {
   fclose(fp);
   cmp = '0';
 
-  fp = fopen("tick7.txt", "r");
+  fp = fopen("tick7_week.txt", "r");
   fscanf(fp, "%c", & cmp);
   if (cmp == '1') {
     iShowBMP2(455, 484 - 180, "tick_box.bmp", 0xffffff);
@@ -334,7 +345,7 @@ void iDraw() {
   fclose(fp);
   cmp = '0';
 
-  fp = fopen("tick8.txt", "r");
+  fp = fopen("tick8_week.txt", "r");
   fscanf(fp, "%c", & cmp);
   if (cmp == '1') {
     iShowBMP2(455, 484 - 210, "tick_box.bmp", 0xffffff);
@@ -342,7 +353,7 @@ void iDraw() {
   fclose(fp);
   cmp = '0';
 
-  fp = fopen("tick9.txt", "r");
+  fp = fopen("tick9_week.txt", "r");
   fscanf(fp, "%c", & cmp);
   if (cmp == '1') {
     iShowBMP2(455, 484 - 240, "tick_box.bmp", 0xffffff);
@@ -350,7 +361,7 @@ void iDraw() {
   fclose(fp);
   cmp = '0';
 
-  fp = fopen("tick10.txt", "r");
+  fp = fopen("tick10_week.txt", "r");
   fscanf(fp, "%c", & cmp);
   if (cmp == '1') {
     iShowBMP2(455, 484 - 270, "tick_box.bmp", 0xffffff);
@@ -358,7 +369,7 @@ void iDraw() {
   fclose(fp);
   cmp = '0';
 
-  fp = fopen("tick11.txt", "r");
+  fp = fopen("tick11_week.txt", "r");
   fscanf(fp, "%c", & cmp);
   if (cmp == '1') {
     iShowBMP2(455, 484 - 300, "tick_box.bmp", 0xffffff);
@@ -366,7 +377,7 @@ void iDraw() {
   fclose(fp);
   cmp = '0';
 
-  fp = fopen("tick12.txt", "r");
+  fp = fopen("tick12_week.txt", "r");
   fscanf(fp, "%c", & cmp);
   if (cmp == '1') {
     iShowBMP2(455, 484 - 330, "tick_box.bmp", 0xffffff);
@@ -374,7 +385,7 @@ void iDraw() {
   fclose(fp);
   cmp = '0';
 
-  fp = fopen("tick13.txt", "r");
+  fp = fopen("tick13_week.txt", "r");
   fscanf(fp, "%c", & cmp);
   if (cmp == '1') {
     iShowBMP2(455, 484 - 360, "tick_box.bmp", 0xffffff);
@@ -382,7 +393,7 @@ void iDraw() {
   fclose(fp);
   cmp = '0';
 
-  fp = fopen("tick14.txt", "r");
+  fp = fopen("tick14_week.txt", "r");
   fscanf(fp, "%c", & cmp);
   if (cmp == '1') {
     iShowBMP2(455, 484 - 390, "tick_box.bmp", 0xffffff);
@@ -390,7 +401,7 @@ void iDraw() {
   fclose(fp);
   cmp = '0';
 
-  fp = fopen("tick15.txt", "r");
+  fp = fopen("tick15_week.txt", "r");
   fscanf(fp, "%c", & cmp);
   if (cmp == '1') {
     iShowBMP2(455, 484 - 420, "tick_box.bmp", 0xffffff);
@@ -398,7 +409,7 @@ void iDraw() {
   fclose(fp);
   cmp = '0';
 
-  fp = fopen("tick16.txt", "r");
+  fp = fopen("tick16_week.txt", "r");
   fscanf(fp, "%c", & cmp);
   if (cmp == '1') {
     iShowBMP2(455, 484 - 450, "tick_box.bmp", 0xffffff);
@@ -406,7 +417,7 @@ void iDraw() {
   fclose(fp);
   cmp = '0';
 
-  fp = fopen("tick17.txt", "r");
+  fp = fopen("tick17_week.txt", "r");
   fscanf(fp, "%c", & cmp);
   if (cmp == '1') {
     iShowBMP2(455, 484 - 480, "tick_box.bmp", 0xffffff);
@@ -421,9 +432,9 @@ void iDraw() {
   show_time();
   read_deadline_file();
   show_remaining_time();
-  iText(882, 183, "DAILY TO-DO LIST", GLUT_BITMAP_TIMES_ROMAN_24);
-  iText(175, 70, "CLEAR FILES", GLUT_BITMAP_HELVETICA_18);
-  iText(163, 70 + 53, "WEEKLY TO-DO", GLUT_BITMAP_HELVETICA_18);
+  iText(882, 183, "WEEKLY TO-DO LIST", GLUT_BITMAP_TIMES_ROMAN_24);
+  iText(175, 70, "CLEAR TASKS", GLUT_BITMAP_HELVETICA_18);
+  iText(163, 70 + 53, "DAILY TO-DO", GLUT_BITMAP_HELVETICA_18);
   iText(153, 70 + 53 + 53, "MONTHLY TO-DO", GLUT_BITMAP_HELVETICA_18);
   if (condition == 0) {
     iSetColor(255, 255, 255);
@@ -437,7 +448,7 @@ void iDraw() {
   }
   if (condition == 2) {
     iSetColor(255, 255, 255);
-    iText(890, 561, "Add deadline hour ", GLUT_BITMAP_TIMES_ROMAN_24);
+    iText(890, 561, "Add deadline day ", GLUT_BITMAP_TIMES_ROMAN_24);
     iSetColor(0, 0, 0);
   }
   if (condition == 3) {
@@ -471,189 +482,122 @@ void iMouse(int button, int state, int mx, int my) {
         //char x[20];
         //sprintf(x,"%d",a);
         //fclose(fp);
-        fp = fopen("tick15.txt", "w");
+        fp = fopen("tick15_week.txt", "w");
         fprintf(fp, "1");
         fclose(fp);
       } else if (my >= 508 - 10 && my <= 508 + 10) {
         FILE * fp;
-        fp = fopen("tick1.txt", "w");
+        fp = fopen("tick1_week.txt", "w");
         fprintf(fp, "1");
         fclose(fp);
       } else if (my >= 477 - 10 && my <= 477 + 10) {
         FILE * fp;
-        fp = fopen("tick2.txt", "w");
+        fp = fopen("tick2_week.txt", "w");
         fprintf(fp, "1");
         fclose(fp);
       } else if (my >= 440 - 10 && my <= 440 + 10) {
         FILE * fp;
-        fp = fopen("tick3.txt", "w");
+        fp = fopen("tick3_week.txt", "w");
         fprintf(fp, "1");
         fclose(fp);
       } else if (my >= 410 - 10 && my <= 410 + 10) {
         FILE * fp;
-        fp = fopen("tick4.txt", "w");
+        fp = fopen("tick4_week.txt", "w");
         fprintf(fp, "1");
         fclose(fp);
       } else if (my >= 380 - 10 && my <= 380 + 10) {
         FILE * fp;
-        fp = fopen("tick5.txt", "w");
+        fp = fopen("tick5_week.txt", "w");
         fprintf(fp, "1");
         fclose(fp);
       } else if (my >= 350 - 10 && my <= 350 + 10) {
         FILE * fp;
-        fp = fopen("tick6.txt", "w");
+        fp = fopen("tick6_week.txt", "w");
         fprintf(fp, "1");
         fclose(fp);
       } else if (my >= 320 - 10 && my <= 320 + 10) {
         FILE * fp;
-        fp = fopen("tick7.txt", "w");
+        fp = fopen("tick7_week.txt", "w");
         fprintf(fp, "1");
         fclose(fp);
       } else if (my >= 290 - 10 && my <= 290 + 10) {
         FILE * fp;
-        fp = fopen("tick8.txt", "w");
+        fp = fopen("tick8_week.txt", "w");
         fprintf(fp, "1");
         fclose(fp);
       } else if (my >= 260 - 10 && my <= 260 + 10) {
         FILE * fp;
-        fp = fopen("tick9.txt", "w");
+        fp = fopen("tick9_week.txt", "w");
         fprintf(fp, "1");
         fclose(fp);
       } else if (my >= 230 - 10 && my <= 230 + 10) {
         FILE * fp;
-        fp = fopen("tick10.txt", "w");
+        fp = fopen("tick10_week.txt", "w");
         fprintf(fp, "1");
         fclose(fp);
       } else if (my >= 200 - 10 && my <= 200 + 10) {
         FILE * fp;
-        fp = fopen("tick11.txt", "w");
+        fp = fopen("tick11_week.txt", "w");
         fprintf(fp, "1");
         fclose(fp);
       } else if (my >= 170 - 10 && my <= 170 + 10) {
         FILE * fp;
-        fp = fopen("tick12.txt", "w");
+        fp = fopen("tick12_week.txt", "w");
         fprintf(fp, "1");
         fclose(fp);
       } else if (my >= 140 - 10 && my <= 140 + 10) {
         FILE * fp;
-        fp = fopen("tick13.txt", "w");
+        fp = fopen("tick13_week.txt", "w");
         fprintf(fp, "1");
         fclose(fp);
       } else if (my >= 110 - 10 && my <= 110 + 10) {
         FILE * fp;
-        fp = fopen("tick14.txt", "w");
+        fp = fopen("tick14_week.txt", "w");
         fprintf(fp, "1");
         fclose(fp);
       } else if (my >= 50 - 10 && my <= 50 + 10) {
         FILE * fp;
-        fp = fopen("tick16.txt", "w");
+        fp = fopen("tick16_week.txt", "w");
         fprintf(fp, "1");
         fclose(fp);
       } else if (my >= 20 - 10 && my <= 20 + 10) {
         FILE * fp;
-        fp = fopen("tick17.txt", "w");
+        fp = fopen("tick17_week.txt", "w");
         fprintf(fp, "1");
         fclose(fp);
       }
     } else if (mx >= 130 && mx <= 347 && my >= 57 && my <= 101) {
-      FILE * fp;
-      fp = fopen("deadline.txt", "w");
-      fclose(fp);
-      fp = fopen("to-do list.txt", "w");
-      fclose(fp);
-      fp = fopen("task.txt", "w");
-      fprintf(fp, "1");
+      remove("deadline_week.txt");
+      remove("to-do list_week.txt");
       task = 1;
-      fclose(fp);
-      fp = fopen("tick17.txt", "w");
-      fclose(fp);
-      fp = fopen("tick1.txt", "w");
-      fclose(fp);
-      fp = fopen("tick2.txt", "w");
-      fclose(fp);
-      fp = fopen("tick3.txt", "w");
-      fclose(fp);
-      fp = fopen("tick4.txt", "w");
-      fclose(fp);
-      fp = fopen("tick5.txt", "w");
-      fclose(fp);
-      fp = fopen("tick6.txt", "w");
-      fclose(fp);
-      fp = fopen("tick7.txt", "w");
-      fclose(fp);
-      fp = fopen("tick8.txt", "w");
-      fclose(fp);
-      fp = fopen("tick9.txt", "w");
-      fclose(fp);
-      fp = fopen("tick10.txt", "w");
-      fclose(fp);
-      fp = fopen("tick11.txt", "w");
-      fclose(fp);
-      fp = fopen("tick12.txt", "w");
-      fclose(fp);
-      fp = fopen("tick13.txt", "w");
-      fclose(fp);
-      fp = fopen("tick14.txt", "w");
-      fclose(fp);
-      fp = fopen("tick15.txt", "w");
-      fclose(fp);
-      fp = fopen("tick16.txt", "w");
-      fclose(fp);
+      remove("task.txt");
+      remove("deadline_string.txt");
+      remove("tick1_week.txt");
+      remove("tick2_week.txt");
+      remove("tick3_week.txt");
+      remove("tick4_week.txt");
+      remove("tick5_week.txt");
+      remove("tick6_week.txt");
+      remove("tick7_week.txt");
+      remove("tick8_week.txt");
+      remove("tick9_week.txt");
+      remove("tick10_week.txt");
+      remove("tick11_week.txt");
+      remove("tick12_week.txt");
+      remove("tick13_week.txt");
+      remove("tick14_week.txt");
+      remove("tick15_week.txt");
+      remove("tick16_week.txt");
+      remove("tick17_week.txt");
+
     }
   }
 }
 
 void iKeyboard(unsigned char key) {
-  if (key == '\r' && condition == 1) {
-    // '\r' is the ASCII code for the Enter key
-    // Do something with the input
-    iSetColor(255, 0, 0);
-    strcpy(tmp, input);
-    Add_task();
-    // Clear the input string
-    memset(input, 0, sizeof(input));
-  } else if (condition == 1 && key != '\r') {
-    // Add the typed character to the input string
-    int len = strlen(input);
-    if (len < sizeof(input) - 1) {
-      input[len] = key;
-      input[len + 1] = '\0';
-    }
-  } else if (condition == 2 && key != '\r') {
-    int len = strlen(input2);
-    if (len < sizeof(input2) - 1) {
-      input2[len] = key;
-      input2[len + 1] = '\0';
-    }
-  } else if (key == '\r' && condition == 2) { // '\r' is the ASCII code for the Enter key
-    // Do something with the input
-    iSetColor(255, 0, 0);
-    strcpy(tmp2, input2);
-    Add_deadline();
-    memset(input2, 0, sizeof(input2));
-    // Clear the input string
-  } else if (condition == 3 && key != '\r') {
-    int len = strlen(input3);
-    if (len < sizeof(input3) - 1) {
-      input3[len] = key;
-      input3[len + 1] = '\0';
-    }
-  } else if (key == '\r' && condition == 3) { // '\r' is the ASCII code for the Enter key
-    // Do something with the input
-    iSetColor(255, 0, 0);
-    strcpy(tmp3, input3);
-    Add_deadline_minutes();
-    // Clear the input string
-    memset(input3, 0, sizeof(input3));
-  }
+
 }
 
 void iSpecialKeyboard(unsigned char key) {
   // Nothing here yet
-}
-
-int main() {
-  read_task_file();
-  iInitialize(1200, 600, "fml");
-  return 0;
 }
