@@ -10,58 +10,7 @@ char input[1000];
 char input2[1000];
 char input3[1000];
 char tmp[1000];
-int xpos1 = -600;
-int xpos2 = -600;
-int xpos3 = -600;
-int xpos4 = -600;
-int xpos5 = -600;
-int xpos6 = -600;
-int xpos7 = -600;
-int xpos8 = -600;
-int xpos9 = -600;
-int xpos10 = -600;
-int xpos11 = -600;
-int xpos12 = -600;
-int xpos13 = -600;
-int xpos14 = -600;
-int xpos15 = -600;
-int xpos16 = -600;
-int xpos17 = -600;
 int task;
-int glob_counter;
-struct obostha {
-  int obosthas;
-  int coordinate;
-};
-
-struct obostha obostha[50];
-int values[25] = {
-  1,
-  1,
-  1,
-  1,
-  1,
-  1,
-  1,
-  1,
-  1,
-  1,
-  1,
-  1,
-  1,
-  1,
-  1,
-  1,
-  1,
-  1,
-  1,
-  1,
-  1,
-  1,
-  1,
-  1,
-  1
-};
 
 char tmp2[1000];
 char tmp3[1000];
@@ -122,8 +71,6 @@ void Add_deadline_minutes(void) {
   FILE * f = fopen("deadline.txt", "a");
   fprintf(f, "%s,", tmp3);
   fclose(f);
-  //printf("%s ", tmp3);
-  //read_deadline_file();
   condition = 0;
 }
 
@@ -187,15 +134,7 @@ void show_file(void) {
   while (fgets(line, sizeof(line), file)) {
     char * token = strtok(line, ",");
     while (token != NULL) {
-      obostha[counter].coordinate = y;
-      if (obostha[counter].obosthas == 1) {
-        iRectangle(479, y - 3, 15, 15);
-      }
-      if (obostha[counter].obosthas == -1) {
-        iSetColor(255, 0, 0);
-        iFilledRectangle(470, y, 15, 15);
-      }
-      //printf("%s\n", token);
+      iRectangle(479, y - 3, 15, 15);
       iText(500, y, token);
       y -= 30;
       token = strtok(NULL, ",");
@@ -244,51 +183,42 @@ show_remaining_time() {
   int y = 500;
   for (int i = 0; i < deadline_tracker; i++) {
     if (hour_remain(dedline[i].hour) > 0) {
-        if(minute_remain(dedline[i].minute)>0)
-        {
-            char buffer[100];
-            sprintf(buffer, "%d", hour_remain(dedline[i].hour));
-            iText(680, y, buffer);
-            iText(700, y, "hr");
-            char bufferr[100];
-            sprintf(bufferr,"%d",minute_remain(dedline[i].minute));
-            iText(720,y,bufferr);
-            iText(750,y,"min");
-            y -= 30;
-        }
-        else if(minute_remain(dedline[i].minute)<0)
-        {
-            char buffer[100];
-            int minute = (hour_remain(dedline[i].hour)*60+minute_remain(dedline[i].minute));
-            sprintf(buffer,"%d",minute/60);
-            iText(680, y, buffer);
-            iText(700, y, "hr");
-            char bufferr[100];
-            sprintf(bufferr,"%d",minute-60*(minute/60));
-            iText(720,y,bufferr);
-            iText(750,y,"min");
-            y -= 30;
-        }
-    }
-
-    else if(hour_remain(dedline[i].hour)<=0)
-    {
-      if(minute_remain(dedline[i].minute)<=0)
-      {
-          iText(680, y, "Time Over");
-          y -= 30;
+      if (minute_remain(dedline[i].minute) > 0) {
+        char buffer[100];
+        sprintf(buffer, "%d", hour_remain(dedline[i].hour));
+        iText(680, y, buffer);
+        iText(700, y, "hr");
+        char bufferr[100];
+        sprintf(bufferr, "%d", minute_remain(dedline[i].minute));
+        iText(720, y, bufferr);
+        iText(750, y, "min");
+        y -= 30;
+      } else if (minute_remain(dedline[i].minute) < 0) {
+        char buffer[100];
+        int minute = (hour_remain(dedline[i].hour) * 60 + minute_remain(dedline[i].minute));
+        sprintf(buffer, "%d", minute / 60);
+        iText(680, y, buffer);
+        iText(700, y, "hr");
+        char bufferr[100];
+        sprintf(bufferr, "%d", minute - 60 * (minute / 60));
+        iText(720, y, bufferr);
+        iText(750, y, "min");
+        y -= 30;
       }
-      else if(hour_remain(dedline[i].hour)==0){
-            iText(680, y, "0");
-            iText(700, y, "hr");
-            char bufferr[100];
-            sprintf(bufferr,"%d",minute_remain(dedline[i].minute));
-            iText(720,y,bufferr);
-            iText(750,y,"min");
-            y -= 30;
+    } else if (hour_remain(dedline[i].hour) <= 0) {
+      if (minute_remain(dedline[i].minute) <= 0) {
+        iText(680, y, "Time Over");
+        y -= 30;
+      } else if (hour_remain(dedline[i].hour) == 0) {
+        iText(680, y, "0");
+        iText(700, y, "hr");
+        char bufferr[100];
+        sprintf(bufferr, "%d", minute_remain(dedline[i].minute));
+        iText(720, y, bufferr);
+        iText(750, y, "min");
+        y -= 30;
 
       }
-
 
     }
 
@@ -315,26 +245,26 @@ void iDraw() {
   iRectangle(678, 532, 111, 68);
   iSetColor(0, 0, 255);
   iFilledCircle(1130, 50, 40);
-  iSetColor(0,0,0);
-  iFilledRectangle(130,561-60,216,60);
+  iSetColor(0, 0, 0);
+  iFilledRectangle(130, 561 - 60, 216, 60);
   //154,522
-  iSetColor(255,0,0);
+  iSetColor(255, 0, 0);
   char tmp[20];
   int hour = local_hour();
   int minute = local_minute();
   int second = local_second();
-  sprintf(tmp,"%d",hour);
-  iText(154+30+10,522,tmp,GLUT_BITMAP_TIMES_ROMAN_24);
-  iText(154+30+10+25,522,":",GLUT_BITMAP_TIMES_ROMAN_24);
-  sprintf(tmp,"%d",minute);
-  iText(154+30+30+10,522,tmp,GLUT_BITMAP_TIMES_ROMAN_24);
-  iText(154+30+30+10+25,522,":",GLUT_BITMAP_TIMES_ROMAN_24);
-  sprintf(tmp,"%d",second);
-  iText(154+30+30+30+10,522,tmp,GLUT_BITMAP_TIMES_ROMAN_24);
+  sprintf(tmp, "%d", hour);
+  iText(154 + 30 + 10, 522, tmp, GLUT_BITMAP_TIMES_ROMAN_24);
+  iText(154 + 30 + 10 + 25, 522, ":", GLUT_BITMAP_TIMES_ROMAN_24);
+  sprintf(tmp, "%d", minute);
+  iText(154 + 30 + 30 + 10, 522, tmp, GLUT_BITMAP_TIMES_ROMAN_24);
+  iText(154 + 30 + 30 + 10 + 25, 522, ":", GLUT_BITMAP_TIMES_ROMAN_24);
+  sprintf(tmp, "%d", second);
+  iText(154 + 30 + 30 + 30 + 10, 522, tmp, GLUT_BITMAP_TIMES_ROMAN_24);
   iSetColor(235, 229, 52);
-  iFilledRectangle(130,58,216,43);
-  iFilledRectangle(130,111,216,43);
-  iFilledRectangle(130,164,216,43);
+  iFilledRectangle(130, 58, 216, 43);
+  iFilledRectangle(130, 111, 216, 43);
+  iFilledRectangle(130, 164, 216, 43);
   iSetColor(0, 0, 0);
   iText(591, 569, "DEADLINE", GLUT_BITMAP_TIMES_ROMAN_10);
   iText(691, 569, "TIME REMAINING", GLUT_BITMAP_TIMES_ROMAN_10);
@@ -348,173 +278,153 @@ void iDraw() {
   iSetColor(255, 0, 0);
   FILE * fp;
   char cmp;
-  fp = fopen("tick1.txt","r");
+  fp = fopen("tick1.txt", "r");
   fscanf(fp, "%c", & cmp);
   if (cmp == '1') {
-    iShowBMP2(455,484,"tick_box.bmp",0xffffff);
+    iShowBMP2(455, 484, "tick_box.bmp", 0xffffff);
   }
   fclose(fp);
 
   cmp = '0';
-  fp = fopen("tick2.txt","r");
+  fp = fopen("tick2.txt", "r");
   fscanf(fp, "%c", & cmp);
   if (cmp == '1') {
-    iShowBMP2(455,484-30,"tick_box.bmp",0xffffff);
+    iShowBMP2(455, 484 - 30, "tick_box.bmp", 0xffffff);
   }
   fclose(fp);
   cmp = '0';
 
-  fp = fopen("tick3.txt","r");
+  fp = fopen("tick3.txt", "r");
   fscanf(fp, "%c", & cmp);
   if (cmp == '1') {
-    iShowBMP2(455,484-60,"tick_box.bmp",0xffffff);
+    iShowBMP2(455, 484 - 60, "tick_box.bmp", 0xffffff);
   }
   fclose(fp);
   cmp = '0';
 
-  fp = fopen("tick4.txt","r");
+  fp = fopen("tick4.txt", "r");
   fscanf(fp, "%c", & cmp);
   if (cmp == '1') {
-    iShowBMP2(455,484-90,"tick_box.bmp",0xffffff);
+    iShowBMP2(455, 484 - 90, "tick_box.bmp", 0xffffff);
   }
   fclose(fp);
   cmp = '0';
 
-  fp = fopen("tick5.txt","r");
+  fp = fopen("tick5.txt", "r");
   fscanf(fp, "%c", & cmp);
   if (cmp == '1') {
-    iShowBMP2(455,484-120,"tick_box.bmp",0xffffff);
+    iShowBMP2(455, 484 - 120, "tick_box.bmp", 0xffffff);
   }
   fclose(fp);
   cmp = '0';
 
-  fp = fopen("tick6.txt","r");
+  fp = fopen("tick6.txt", "r");
   fscanf(fp, "%c", & cmp);
   if (cmp == '1') {
-    iShowBMP2(455,484-150,"tick_box.bmp",0xffffff);
+    iShowBMP2(455, 484 - 150, "tick_box.bmp", 0xffffff);
   }
   fclose(fp);
   cmp = '0';
 
-  fp = fopen("tick7.txt","r");
+  fp = fopen("tick7.txt", "r");
   fscanf(fp, "%c", & cmp);
   if (cmp == '1') {
-    iShowBMP2(455,484-180,"tick_box.bmp",0xffffff);
+    iShowBMP2(455, 484 - 180, "tick_box.bmp", 0xffffff);
   }
   fclose(fp);
   cmp = '0';
 
-  fp = fopen("tick8.txt","r");
+  fp = fopen("tick8.txt", "r");
   fscanf(fp, "%c", & cmp);
   if (cmp == '1') {
-    iShowBMP2(455,484-210,"tick_box.bmp",0xffffff);
+    iShowBMP2(455, 484 - 210, "tick_box.bmp", 0xffffff);
   }
   fclose(fp);
   cmp = '0';
 
-  fp = fopen("tick9.txt","r");
+  fp = fopen("tick9.txt", "r");
   fscanf(fp, "%c", & cmp);
   if (cmp == '1') {
-    iShowBMP2(455,484-240,"tick_box.bmp",0xffffff);
+    iShowBMP2(455, 484 - 240, "tick_box.bmp", 0xffffff);
   }
   fclose(fp);
   cmp = '0';
 
-  fp = fopen("tick10.txt","r");
+  fp = fopen("tick10.txt", "r");
   fscanf(fp, "%c", & cmp);
   if (cmp == '1') {
-    iShowBMP2(455,484-270,"tick_box.bmp",0xffffff);
+    iShowBMP2(455, 484 - 270, "tick_box.bmp", 0xffffff);
   }
   fclose(fp);
   cmp = '0';
 
-  fp = fopen("tick11.txt","r");
+  fp = fopen("tick11.txt", "r");
   fscanf(fp, "%c", & cmp);
   if (cmp == '1') {
-    iShowBMP2(455,484-300,"tick_box.bmp",0xffffff);
+    iShowBMP2(455, 484 - 300, "tick_box.bmp", 0xffffff);
   }
   fclose(fp);
   cmp = '0';
 
-  fp = fopen("tick12.txt","r");
+  fp = fopen("tick12.txt", "r");
   fscanf(fp, "%c", & cmp);
   if (cmp == '1') {
-    iShowBMP2(455,484-330,"tick_box.bmp",0xffffff);
+    iShowBMP2(455, 484 - 330, "tick_box.bmp", 0xffffff);
   }
   fclose(fp);
   cmp = '0';
 
-  fp = fopen("tick13.txt","r");
+  fp = fopen("tick13.txt", "r");
   fscanf(fp, "%c", & cmp);
   if (cmp == '1') {
-    iShowBMP2(455,484-360,"tick_box.bmp",0xffffff);
+    iShowBMP2(455, 484 - 360, "tick_box.bmp", 0xffffff);
   }
   fclose(fp);
   cmp = '0';
 
-  fp = fopen("tick14.txt","r");
+  fp = fopen("tick14.txt", "r");
   fscanf(fp, "%c", & cmp);
   if (cmp == '1') {
-    iShowBMP2(455,484-390,"tick_box.bmp",0xffffff);
+    iShowBMP2(455, 484 - 390, "tick_box.bmp", 0xffffff);
   }
   fclose(fp);
   cmp = '0';
 
-  fp = fopen("tick15.txt","r");
+  fp = fopen("tick15.txt", "r");
   fscanf(fp, "%c", & cmp);
   if (cmp == '1') {
-    iShowBMP2(455,484-420,"tick_box.bmp",0xffffff);
+    iShowBMP2(455, 484 - 420, "tick_box.bmp", 0xffffff);
   }
   fclose(fp);
   cmp = '0';
 
-  fp = fopen("tick16.txt","r");
+  fp = fopen("tick16.txt", "r");
   fscanf(fp, "%c", & cmp);
   if (cmp == '1') {
-    iShowBMP2(455,484-450,"tick_box.bmp",0xffffff);
+    iShowBMP2(455, 484 - 450, "tick_box.bmp", 0xffffff);
   }
   fclose(fp);
   cmp = '0';
 
-  fp = fopen("tick17.txt","r");
+  fp = fopen("tick17.txt", "r");
   fscanf(fp, "%c", & cmp);
   if (cmp == '1') {
-    iShowBMP2(455,484-480,"tick_box.bmp",0xffffff);
+    iShowBMP2(455, 484 - 480, "tick_box.bmp", 0xffffff);
   }
   fclose(fp);
   cmp = '0';
-
-  /*iFilledCircle(xpos1, 87, 5);
-  iFilledCircle(xpos3, 477, 5);
-  iFilledCircle(xpos4, 446, 5);
-  iFilledCircle(xpos5, 418, 5);
-  iFilledCircle(xpos6, 386, 5);
-  iFilledCircle(xpos7, 357, 5);
-  iFilledCircle(xpos8, 326, 5);
-  iFilledCircle(xpos9, 297, 5);
-  iFilledCircle(xpos10, 267, 5);
-  iFilledCircle(xpos11, 235, 5);
-  iFilledCircle(xpos12, 206, 5);
-  iFilledCircle(xpos13, 177, 5);
-  iFilledCircle(xpos14, 147, 5);
-  iFilledCircle(xpos15, 117, 5);
-  iFilledCircle(xpos16, 57, 5);
-  iFilledCircle(xpos17, 28, 5);*/
   iSetColor(0, 0, 0);
   char task_str[20];
   sprintf(task_str, "%d", task);
-  //char deadline_str[20];
-  //sprintf(deadline_str, "%d", dedline[deadline_tracker].hour);
-  //iText(10, 590,deadline_str, GLUT_BITMAP_TIMES_ROMAN_10);
   iText(10, 560, task_str, GLUT_BITMAP_TIMES_ROMAN_10);
   show_file();
   show_time();
   read_deadline_file();
   show_remaining_time();
-  iText(882,183,"DAILY TO-DO LIST",GLUT_BITMAP_TIMES_ROMAN_24);
-  iText(175,70,"CLEAR FILES",GLUT_BITMAP_HELVETICA_18);
-  iText(163,70+53,"WEEKLY TO-DO",GLUT_BITMAP_HELVETICA_18);
-  iText(153,70+53+53,"MONTHLY TO-DO",GLUT_BITMAP_HELVETICA_18);
+  iText(882, 183, "DAILY TO-DO LIST", GLUT_BITMAP_TIMES_ROMAN_24);
+  iText(175, 70, "CLEAR FILES", GLUT_BITMAP_HELVETICA_18);
+  iText(163, 70 + 53, "WEEKLY TO-DO", GLUT_BITMAP_HELVETICA_18);
+  iText(153, 70 + 53 + 53, "MONTHLY TO-DO", GLUT_BITMAP_HELVETICA_18);
   if (condition == 0) {
     iSetColor(255, 255, 255);
     iText(890, 561, "Typing Console ", GLUT_BITMAP_TIMES_ROMAN_24);
@@ -564,151 +474,131 @@ void iMouse(int button, int state, int mx, int my) {
         fp = fopen("tick15.txt", "w");
         fprintf(fp, "1");
         fclose(fp);
-        printf("%i %i %i xpos1\n", mx, my, xpos1);
       } else if (my >= 508 - 10 && my <= 508 + 10) {
         FILE * fp;
         fp = fopen("tick1.txt", "w");
         fprintf(fp, "1");
         fclose(fp);
-        printf("%i %i %i xpos2\n", mx, my, xpos2);
       } else if (my >= 477 - 10 && my <= 477 + 10) {
         FILE * fp;
         fp = fopen("tick2.txt", "w");
         fprintf(fp, "1");
         fclose(fp);
-        printf("%i %i %i xpos3\n", mx, my, xpos3);
       } else if (my >= 440 - 10 && my <= 440 + 10) {
         FILE * fp;
         fp = fopen("tick3.txt", "w");
         fprintf(fp, "1");
         fclose(fp);
-        printf("%i %i %i xpos4\n", mx, my, xpos4);
       } else if (my >= 410 - 10 && my <= 410 + 10) {
         FILE * fp;
         fp = fopen("tick4.txt", "w");
         fprintf(fp, "1");
         fclose(fp);
-        printf("%i %i %i xpos5\n", mx, my, xpos5);
       } else if (my >= 380 - 10 && my <= 380 + 10) {
         FILE * fp;
         fp = fopen("tick5.txt", "w");
         fprintf(fp, "1");
         fclose(fp);
-        printf("%i %i %i xpos6\n", mx, my, xpos6);
       } else if (my >= 350 - 10 && my <= 350 + 10) {
         FILE * fp;
         fp = fopen("tick6.txt", "w");
         fprintf(fp, "1");
         fclose(fp);
-        printf("%i %i %i xpos7\n", mx, my, xpos7);
       } else if (my >= 320 - 10 && my <= 320 + 10) {
         FILE * fp;
         fp = fopen("tick7.txt", "w");
         fprintf(fp, "1");
         fclose(fp);
-        printf("%i %i %i xpos8\n", mx, my, xpos8);
       } else if (my >= 290 - 10 && my <= 290 + 10) {
         FILE * fp;
         fp = fopen("tick8.txt", "w");
         fprintf(fp, "1");
         fclose(fp);
-        printf("%i %i %i xpos9\n", mx, my, xpos9);
       } else if (my >= 260 - 10 && my <= 260 + 10) {
         FILE * fp;
         fp = fopen("tick9.txt", "w");
         fprintf(fp, "1");
         fclose(fp);
-        printf("%i %i %i xpos10\n", mx, my, xpos10);
       } else if (my >= 230 - 10 && my <= 230 + 10) {
         FILE * fp;
         fp = fopen("tick10.txt", "w");
         fprintf(fp, "1");
         fclose(fp);
-        xpos11 = 487;
-        printf("%i %i %i xpos11\n", mx, my, xpos1);
       } else if (my >= 200 - 10 && my <= 200 + 10) {
         FILE * fp;
         fp = fopen("tick11.txt", "w");
         fprintf(fp, "1");
         fclose(fp);
-        printf("%i %i %i xpos12\n", mx, my, xpos12);
       } else if (my >= 170 - 10 && my <= 170 + 10) {
         FILE * fp;
         fp = fopen("tick12.txt", "w");
         fprintf(fp, "1");
         fclose(fp);
-        printf("%i %i %i xpos13\n", mx, my, xpos13);
       } else if (my >= 140 - 10 && my <= 140 + 10) {
         FILE * fp;
         fp = fopen("tick13.txt", "w");
         fprintf(fp, "1");
         fclose(fp);
-        printf("%i %i %i xpos14\n", mx, my, xpos14);
       } else if (my >= 110 - 10 && my <= 110 + 10) {
         FILE * fp;
         fp = fopen("tick14.txt", "w");
         fprintf(fp, "1");
         fclose(fp);
-        printf("%i %i %i xpos15\n", mx, my, xpos15);
       } else if (my >= 50 - 10 && my <= 50 + 10) {
         FILE * fp;
         fp = fopen("tick16.txt", "w");
         fprintf(fp, "1");
         fclose(fp);
-        printf("%i %i %i xpos16\n", mx, my, xpos16);
       } else if (my >= 20 - 10 && my <= 20 + 10) {
         FILE * fp;
         fp = fopen("tick17.txt", "w");
         fprintf(fp, "1");
         fclose(fp);
-        printf("%i %i %i xpos17\n", mx, my, xpos17);
       }
-    }
-    else if(mx>=130 && mx<=347 && my>=57 && my<=101)
-    {
-        FILE *fp;
-        fp=fopen("deadline.txt","w");
-        fclose(fp);
-        fp=fopen("to-do list.txt","w");
-        fclose(fp);
-        fp=fopen("task.txt","w");
-        fprintf(fp,"1");
-        task =1;
-        fclose(fp);
-        fp=fopen("tick17.txt","w");
-        fclose(fp);
-                fp=fopen("tick1.txt","w");
-        fclose(fp);
-                fp=fopen("tick2.txt","w");
-        fclose(fp);
-                fp=fopen("tick3.txt","w");
-        fclose(fp);
-                fp=fopen("tick4.txt","w");
-        fclose(fp);
-                fp=fopen("tick5.txt","w");
-        fclose(fp);
-                fp=fopen("tick6.txt","w");
-        fclose(fp);
-                fp=fopen("tick7.txt","w");
-        fclose(fp);
-                fp=fopen("tick8.txt","w");
-        fclose(fp);
-                fp=fopen("tick9.txt","w");
-        fclose(fp);
-                fp=fopen("tick10.txt","w");
-        fclose(fp);
-                fp=fopen("tick11.txt","w");
-        fclose(fp);
-                fp=fopen("tick12.txt","w");
-        fclose(fp);
-                fp=fopen("tick13.txt","w");
-        fclose(fp);
-                fp=fopen("tick14.txt","w");
-        fclose(fp);
-                fp=fopen("tick15.txt","w");
-        fclose(fp);
-                fp=fopen("tick16.txt","w");
-        fclose(fp);
+    } else if (mx >= 130 && mx <= 347 && my >= 57 && my <= 101) {
+      FILE * fp;
+      fp = fopen("deadline.txt", "w");
+      fclose(fp);
+      fp = fopen("to-do list.txt", "w");
+      fclose(fp);
+      fp = fopen("task.txt", "w");
+      fprintf(fp, "1");
+      task = 1;
+      fclose(fp);
+      fp = fopen("tick17.txt", "w");
+      fclose(fp);
+      fp = fopen("tick1.txt", "w");
+      fclose(fp);
+      fp = fopen("tick2.txt", "w");
+      fclose(fp);
+      fp = fopen("tick3.txt", "w");
+      fclose(fp);
+      fp = fopen("tick4.txt", "w");
+      fclose(fp);
+      fp = fopen("tick5.txt", "w");
+      fclose(fp);
+      fp = fopen("tick6.txt", "w");
+      fclose(fp);
+      fp = fopen("tick7.txt", "w");
+      fclose(fp);
+      fp = fopen("tick8.txt", "w");
+      fclose(fp);
+      fp = fopen("tick9.txt", "w");
+      fclose(fp);
+      fp = fopen("tick10.txt", "w");
+      fclose(fp);
+      fp = fopen("tick11.txt", "w");
+      fclose(fp);
+      fp = fopen("tick12.txt", "w");
+      fclose(fp);
+      fp = fopen("tick13.txt", "w");
+      fclose(fp);
+      fp = fopen("tick14.txt", "w");
+      fclose(fp);
+      fp = fopen("tick15.txt", "w");
+      fclose(fp);
+      fp = fopen("tick16.txt", "w");
+      fclose(fp);
     }
   }
 }
@@ -763,10 +653,6 @@ void iSpecialKeyboard(unsigned char key) {
 }
 
 int main() {
-  for (int i = 0; i < 25; i++) {
-
-    obostha[i].obosthas = values[i];
-  }
   read_task_file();
   iInitialize(1200, 600, "fml");
   return 0;
