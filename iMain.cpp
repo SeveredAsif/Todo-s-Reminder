@@ -10,11 +10,13 @@ int condition = 0;
 char input[1000];
 char input2[1000];
 char input3[1000];
+char input4[1000];
 char tmp[1000];
 int task;
 
 char tmp2[1000];
 char tmp3[1000];
+char tmp4[1000];
 int deadline_tracker = 0;
 
 int local_hour() {
@@ -48,9 +50,22 @@ struct deadline {
   int hour;
   int minute;
   int day;
+  int remind;
 };
 
 struct deadline dedline[1000];
+
+void read_reminder_file(void) {
+FILE *f = fopen("reminder.txt","r");
+int reminder_tracker = 0;
+if (f!=NULL){
+        char a;
+    while(fscanf(f,"%c,")==1){
+        dedline[reminder_tracker].remind = a-'0';
+        reminder_tracker++;
+    }
+}
+}
 
 void read_deadline_file(void) {
   FILE * f = fopen("deadline.txt", "r");
@@ -158,11 +173,21 @@ void Add_deadline_week(void) {
 
 }
 
+void Add_reminder_minutes(void) {
+ condition = 4;
+ FILE *f =fopen("reminder.txt","a");
+ fprintf(f,"%s,",tmp4);
+ fclose(f);
+ condition = 0;
+}
+
+
 void Add_deadline_minutes(void) {
   FILE * f = fopen("deadline.txt", "a");
   fprintf(f, "%s,", tmp3);
   fclose(f);
-  condition = 0;
+  condition = 4;
+
 }
 
 void Add_deadline(void) {
@@ -370,6 +395,15 @@ show_remaining_time() {
         y -= 30;
       }
     } else if (hour_remain(dedline[i].hour) <= 0) {
+        if(hour_remain(dedline[i].hour)==0)
+        {
+            if(minute_remain(dedline[i].minute)==dedline[i].remind)
+            {
+                iSetColor(147, 47, 81);
+                iFilledRectangle(130, 164+53+53+53, 216, 93);
+                iText(185,164+53+53,"TASK SHESH?",GLUT_BITMAP_HELVETICA_18);
+            }
+        }
       if (minute_remain(dedline[i].minute) <= 0) {
         iText(680, y, "Time Over");
         y -= 30;
@@ -385,6 +419,8 @@ show_remaining_time() {
       }
 
     }
+
+
 
   }
 }
@@ -412,7 +448,7 @@ show_remaining_time_week() {
 void iDraw() {
     if (game_condition==0)
     {
-          iClear();
+  iClear();
   iSetColor(151, 234, 84);
   iFilledRectangle(0, 0, 1200, 600);
   iSetColor(3, 169, 244);
@@ -460,6 +496,7 @@ void iDraw() {
   iText(838, 429, input, GLUT_BITMAP_TIMES_ROMAN_24);
   iText(838, 429, input2, GLUT_BITMAP_TIMES_ROMAN_24);
   iText(838, 429, input3, GLUT_BITMAP_TIMES_ROMAN_24);
+  iText(838, 429, input4, GLUT_BITMAP_TIMES_ROMAN_24);
   iSetColor(0, 0, 0);
   iText(1105, 45, "ADD", GLUT_BITMAP_TIMES_ROMAN_24);
   iSetColor(255, 0, 0);
@@ -607,6 +644,7 @@ void iDraw() {
   show_file();
   show_time();
   read_deadline_file();
+  read_reminder_file();
   show_remaining_time();
   iText(882, 183, "DAILY TO-DO LIST", GLUT_BITMAP_TIMES_ROMAN_24);
   iText(175, 70, "CLEAR FILES", GLUT_BITMAP_HELVETICA_18);
@@ -631,6 +669,12 @@ void iDraw() {
   if (condition == 3) {
     iSetColor(255, 255, 255);
     iText(884, 561, "Add deadline minutes: ", GLUT_BITMAP_TIMES_ROMAN_24);
+    iSetColor(0, 0, 0);
+  }
+    if (condition==4)
+  {
+    iSetColor(255, 255, 255);
+    iText(800, 561, "Reminder : how many minutes before?", GLUT_BITMAP_TIMES_ROMAN_24);
     iSetColor(0, 0, 0);
   }
     }
@@ -1021,6 +1065,7 @@ void iMouse(int button, int state, int mx, int my) {
       fclose(fp);
       fp = fopen("tick16.txt", "w");
       fclose(fp);
+      remove("reminder.txt");
     }
   }
     }
@@ -1207,6 +1252,21 @@ void iKeyboard(unsigned char key) {
     Add_deadline_minutes();
     // Clear the input string
     memset(input3, 0, sizeof(input3));
+  }
+   else if (condition == 4 && key != '\r') {
+    int len = strlen(input4);
+    if (len < sizeof(input4) - 1) {
+      input4[len] = key;
+      input4[len + 1] = '\0';
+    }
+  } else if (key == '\r' && condition == 4) { // '\r' is the ASCII code for the Enter key
+    // Do something with the input
+    iSetColor(255, 0, 0);
+    strcpy(tmp4, input4);
+    Add_reminder_minutes();
+    // Clear the input string
+    memset(input4, 0, sizeof(input4));
+    condition = 0;
   }
     }
     else if (game_condition==1)
